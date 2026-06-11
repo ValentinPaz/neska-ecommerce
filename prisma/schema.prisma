@@ -1,0 +1,137 @@
+// Prisma Schema — NESKA Bs As
+// Prisma 7 — el provider es "prisma-client" y la URL va en prisma.config.ts (raíz del proyecto)
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  // La URL se configura en prisma.config.ts (raíz del proyecto)
+}
+
+// ─────────────────────────────────────────────
+// CATÁLOGO
+// ─────────────────────────────────────────────
+
+model Category {
+  id        String    @id @default(cuid())
+  name      String
+  slug      String    @unique
+  position  Int       @default(0)
+  products  Product[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Product {
+  id          String           @id @default(cuid())
+  slug        String           @unique
+  name        String
+  description String?
+  price       Int
+  isNew       Boolean          @default(false)
+  isActive    Boolean          @default(true)
+  category    Category         @relation(fields: [categoryId], references: [id])
+  categoryId  String
+  images      ProductImage[]
+  variants    ProductVariant[]
+  orderItems  OrderItem[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+}
+
+model ProductImage {
+  id        String   @id @default(cuid())
+  url       String
+  altText   String?
+  position  Int      @default(0)
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId String
+  createdAt DateTime @default(now())
+
+  @@index([productId, position])
+}
+
+model ProductVariant {
+  id         String      @id @default(cuid())
+  size       String
+  stock      Int         @default(0)
+  product    Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId  String
+  orderItems OrderItem[]
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  @@unique([productId, size])
+  @@index([productId])
+}
+
+// ─────────────────────────────────────────────
+// ADMIN
+// ─────────────────────────────────────────────
+
+model AdminUser {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  passwordHash String
+  name         String?
+  role         AdminRole @default(ADMIN)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+enum AdminRole {
+  ADMIN
+  SUPER_ADMIN
+}
+
+// ─────────────────────────────────────────────
+// ÓRDENES (preparado para Mercado Pago)
+// ─────────────────────────────────────────────
+
+model Order {
+  id              String      @id @default(cuid())
+  mpPaymentId     String?     @unique
+  mpStatus        String?
+  status          OrderStatus @default(PENDING)
+  total           Int
+  customerName    String
+  customerEmail   String
+  customerPhone   String?
+  shippingAddress String
+  shippingCity    String?
+  shippingZip     String?
+  notes           String?
+  items           OrderItem[]
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@index([customerEmail])
+  @@index([status])
+}
+
+model OrderItem {
+  id        String         @id @default(cuid())
+  order     Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId   String
+  product   Product        @relation(fields: [productId], references: [id])
+  productId String
+  variant   ProductVariant @relation(fields: [variantId], references: [id])
+  variantId String
+  quantity  Int
+  unitPrice Int
+  createdAt DateTime       @default(now())
+
+  @@index([orderId])
+}
+
+enum OrderStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+  SHIPPED
+  DELIVERED
+}

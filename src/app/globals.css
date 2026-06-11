@@ -1,26 +1,136 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-sans);
   --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-heading);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+
+  /* ── NESKA Brand Tokens ─────────────────────────────── */
+  --color-neska-ivory: var(--neska-ivory);
+  --color-neska-rose: var(--neska-rose);
+  --color-neska-nude: var(--neska-nude);
+  --color-neska-beige: var(--neska-beige);
+  --color-neska-taupe: var(--neska-taupe);
+  --color-neska-gold: var(--neska-gold);
+  --color-neska-brown: var(--neska-brown);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+:root {
+  /* ── NESKA Palette ──────────────────────────────────── */
+  --neska-ivory:  #F9F7F4;
+  --neska-rose:   #F3E6E6;
+  --neska-nude:   #E8D7CC;
+  --neska-beige:  #DCCBB8;
+  --neska-taupe:  #B8A79B;
+  --neska-gold:   #C8A86B;
+  --neska-brown:  #6E5C52;
+
+  /* ── shadcn/ui token overrides (NESKA theme) ────────── */
+  --background:           #F9F7F4;
+  --foreground:           #6E5C52;
+  --card:                 #FFFFFF;
+  --card-foreground:      #6E5C52;
+  --popover:              #FFFFFF;
+  --popover-foreground:   #6E5C52;
+  --primary:              #C8A86B;
+  --primary-foreground:   #FFFFFF;
+  --secondary:            #F3E6E6;
+  --secondary-foreground: #6E5C52;
+  --muted:                #F3E6E6;
+  --muted-foreground:     #B8A79B;
+  --accent:               #E8D7CC;
+  --accent-foreground:    #6E5C52;
+  --destructive:          oklch(0.577 0.245 27.325);
+  --border:               #DCCBB8;
+  --input:                #DCCBB8;
+  --ring:                 #C8A86B;
+  --radius:               0.375rem;
+
+  --sidebar:                  #F9F7F4;
+  --sidebar-foreground:       #6E5C52;
+  --sidebar-primary:          #C8A86B;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent:           #F3E6E6;
+  --sidebar-accent-foreground: #6E5C52;
+  --sidebar-border:           #DCCBB8;
+  --sidebar-ring:             #C8A86B;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    @apply tracking-wide;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer utilities {
+  .font-heading {
+    font-family: var(--font-heading);
+  }
+  .text-neska-gold {
+    color: var(--neska-gold);
+  }
+  .bg-neska-rose {
+    background-color: var(--neska-rose);
+  }
+  .bg-neska-ivory {
+    background-color: var(--neska-ivory);
+  }
+  .border-neska-beige {
+    border-color: var(--neska-beige);
+  }
+
+  /* Admin form utilities */
+  .field-label {
+    @apply mb-1.5 block text-sm font-medium text-[#6E5C52];
+  }
+  .field-input {
+    @apply w-full rounded-lg border border-[#DCCBB8] bg-white px-3 py-2.5 text-sm text-[#6E5C52] outline-none transition-colors focus:border-[#C8A86B] focus:ring-2 focus:ring-[#C8A86B]/20;
+  }
+  .field-error {
+    @apply mt-1 text-xs text-red-500;
+  }
 }
