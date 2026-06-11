@@ -55,8 +55,9 @@ export async function getShopProducts(opts: {
   categorySlug?: string;
   minPrice?: number;
   maxPrice?: number;
+  query?: string;
 } = {}): Promise<Product[]> {
-  const { categorySlug, minPrice, maxPrice } = opts;
+  const { categorySlug, minPrice, maxPrice, query } = opts;
 
   const rows = await prisma.product.findMany({
     where: {
@@ -64,6 +65,12 @@ export async function getShopProducts(opts: {
       ...(categorySlug && { category: { slug: categorySlug } }),
       ...(minPrice !== undefined && { price: { gte: minPrice } }),
       ...(maxPrice !== undefined && { price: { lte: maxPrice } }),
+      ...(query && {
+        OR: [
+          { name: { contains: query, mode: "insensitive" } },
+          { description: { contains: query, mode: "insensitive" } },
+        ],
+      }),
     },
     orderBy: { createdAt: "desc" },
     include: {

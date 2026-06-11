@@ -3,6 +3,7 @@ import { getShopProducts, getShopCategories } from "@/lib/db/shop";
 import { FilterSidebar } from "@/components/catalog/FilterSidebar";
 import { MobileFiltersDrawer } from "@/components/catalog/MobileFiltersDrawer";
 import { ProductCard } from "@/components/catalog/ProductCard";
+import { SearchBar } from "@/components/catalog/SearchBar";
 
 export const dynamic = "force-dynamic";
 
@@ -16,17 +17,19 @@ interface Props {
     categoria?: string;
     min?: string;
     max?: string;
+    q?: string;
   }>;
 }
 
 export default async function CatalogoPage({ searchParams }: Props) {
-  const { categoria, min, max } = await searchParams;
+  const { categoria, min, max, q } = await searchParams;
 
   const [products, categories] = await Promise.all([
     getShopProducts({
       categorySlug: categoria,
       minPrice: min ? Number(min) : undefined,
       maxPrice: max ? Number(max) : undefined,
+      query: q,
     }),
     getShopCategories(),
   ]);
@@ -75,12 +78,20 @@ export default async function CatalogoPage({ searchParams }: Props) {
               <p className="text-sm text-[#B8A79B]">
                 <span className="font-semibold text-[#6E5C52]">{products.length}</span>{" "}
                 {products.length === 1 ? "producto" : "productos"}
+                {q && (
+                  <span className="ml-1">
+                    para <span className="italic text-[#6E5C52]">&ldquo;{q}&rdquo;</span>
+                  </span>
+                )}
               </p>
             </div>
 
-            <h1 className="hidden md:block font-heading text-2xl font-bold text-[#6E5C52] tracking-wide uppercase">
-              {activeCategory?.name ?? "Catálogo Completo"}
-            </h1>
+            <div className="flex items-center gap-3">
+              <SearchBar />
+              <h1 className="hidden md:block font-heading text-2xl font-bold text-[#6E5C52] tracking-wide uppercase">
+                {activeCategory?.name ?? "Catálogo Completo"}
+              </h1>
+            </div>
           </div>
 
           {products.length > 0 ? (

@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LayoutDashboard, ShoppingBag, Tag, LogOut, X } from "lucide-react";
+import { LayoutDashboard, ShoppingBag, Tag, ClipboardList, LogOut, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
   { href: "/admin/productos", label: "Productos", icon: ShoppingBag },
   { href: "/admin/categorias", label: "Categorías", icon: Tag },
+  { href: "/admin/ordenes", label: "Órdenes", icon: ClipboardList },
 ];
 
 interface AdminSidebarProps {

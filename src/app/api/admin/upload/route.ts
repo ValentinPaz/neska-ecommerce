@@ -1,10 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAdminSession } from "@/lib/auth";
-import { writeFile, mkdir } from "fs/promises";
-import path from "path";
+import { v2 as cloudinary } from "cloudinary";
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+  secure: true,
+});
 
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/jpg"];
 const MAX_SIZE = 4 * 1024 * 1024; // 4MB
+
+function uploadBuffer(buffer: Buffer): Promise<{ secure_url: string }> {
+  return new Promise((resolve, reject) => {
+    cloudinary.uploader
+      .upload_stream({ folder: "neska/products" }, (err, result) => {
+        if (err || !result) reject(err ?? new Error("Upload failed"));
+        else resolve(result as { secure_url: string });
+      })
+      .end(buffer);
+  });
+}
 
 export async function POST(req: NextRequest) {
   const session = await getAdminSession();
@@ -22,16 +39,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "El archivo supera los 4MB" }, { status: 400 });
     }
 
-    const ext = file.name.split(".").pop()?.toLowerCase() ?? "jpg";
-    const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-    const uploadDir = path.join(process.cwd(), "public", "images", "products");
-
-    await mkdir(uploadDir, { recursive: true });
-
     const bytes = await file.arrayBuffer();
-    await writeFile(path.join(uploadDir, filename), Buffer.from(bytes));
+    const result = await uploadBuffer(Buffer.from(bytes));
 
-    return NextResponse.json({ url: `/images/products/${filename}` }, { status: 201 });
+    return NextResponse.json({ url: result.secure_url }, { status: 201 });
   } catch {
     return NextResponse.json({ error: "Error al subir el archivo" }, { status: 500 });
   }
